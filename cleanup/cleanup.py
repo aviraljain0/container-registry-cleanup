@@ -1,17 +1,18 @@
 import requests
 from datetime import datetime
+import os
 
 # ==========================================
 # Docker Hub Configuration
 # ==========================================
 
-USERNAME = "ibm1container1cleanup1team"
-PASSWORD = "ibmcloud24"   # <-- your Docker Hub password
+USERNAME = os.getenv("DOCKER_USERNAME")
+PASSWORD = os.getenv("DOCKER_PASSWORD")
 REPOSITORY = "container-registry-cleanup"
 
 BASE_URL = f"https://hub.docker.com/v2/repositories/{USERNAME}/{REPOSITORY}/tags/"
 
-# Tags that should be cleaned up
+# Tags that should be marked for cleanup
 DELETE_TAGS = {"old", "backup", "test", "debug"}
 
 # ==========================================
@@ -21,27 +22,36 @@ DELETE_TAGS = {"old", "backup", "test", "debug"}
 print("Authenticating with Docker Hub...")
 
 auth_url = "https://hub.docker.com/v2/users/login/"
-auth_data = {"username": USERNAME, "password": PASSWORD}
+auth_data = {
+    "username": USERNAME,
+    "password": PASSWORD
+}
+
 auth_response = requests.post(auth_url, json=auth_data)
 
 if auth_response.status_code != 200:
-    print("Authentication failed:", auth_response.text)
+    print("Authentication Failed!")
+    print(auth_response.text)
     exit()
 
 token = auth_response.json()["token"]
-headers = {"Authorization": f"JWT {token}"}
+headers = {
+    "Authorization": f"JWT {token}"
+}
 
 print("Authentication successful!\n")
 
 # ==========================================
-# Fetch Tags
+# Fetch Repository Tags
 # ==========================================
-  
-print("Fetching tags from repository...")
+
+print("Fetching tags from repository...\n")
 
 response = requests.get(BASE_URL, headers=headers, timeout=10)
+
 if response.status_code != 200:
-    print("Failed to fetch tags:", response.text)
+    print("Failed to fetch repository tags.")
+    print(response.text)
     exit()
 
 data = response.json()
@@ -50,7 +60,7 @@ keep_images = []
 delete_images = []
 
 # ==========================================
-# Create Log File
+# Create Cleanup Log
 # ==========================================
 
 with open("cleanup.log", "w", encoding="utf-8") as log:
@@ -61,10 +71,11 @@ with open("cleanup.log", "w", encoding="utf-8") as log:
     log.write(f"Generated  : {datetime.now()}\n\n")
 
     # ==========================================
-    # Process Images
+    # Process Each Image
     # ==========================================
 
     for image in data["results"]:
+
         tag = image["name"]
         updated = image["last_updated"]
 
@@ -72,73 +83,73 @@ with open("cleanup.log", "w", encoding="utf-8") as log:
         print(f"[INFO] Last Updated   : {updated}")
 
         if tag.lower() in DELETE_TAGS:
-            decision = "DELETE"
+            status = "MARKED FOR CLEANUP"
             reason = "Cleanup policy matched"
             delete_images.append(tag)
         else:
-            decision = "KEEP"
+            status = "KEEP"
             reason = "Active image"
             keep_images.append(tag)
 
+        print(f"[INFO] Status         : {status}")
+        print(f"[INFO] Reason         : {reason}\n")
+
         log.write(f"Tag          : {tag}\n")
         log.write(f"Last Updated : {updated}\n")
-        log.write(f"Decision     : {decision}\n")
+        log.write(f"Status       : {status}\n")
         log.write(f"Reason       : {reason}\n")
         log.write("-" * 60 + "\n")
 
     # ==========================================
-    # Summary (Dry Run)
+    # Summary
     # ==========================================
 
-    print("=" * 50)
-    print("Cleanup Completed (Dry Run)")
-    print("=" * 50)
+    total_images = len(data["results"])
 
-    print(f"Total Images              : {len(data['results'])}")
+    print("=" * 55)
+    print("Cleanup Completed (Dry Run)")
+    print("=" * 55)
+
+    print(f"Total Images              : {total_images}")
     print(f"Images Kept               : {len(keep_images)}")
     print(f"Images Marked for Cleanup : {len(delete_images)}")
 
-    print("\nKEEP:")
+    print("\nImages Kept:")
     for image in keep_images:
-        print(image)
+        print(f"  - {image}")
 
-    print("\nDELETE:")
+    print("\nImages Marked for Cleanup:")
     for image in delete_images:
-        print(image)
+        print(f"  - {image}")
 
     log.write("\nSUMMARY\n")
     log.write("=" * 60 + "\n")
-    log.write(f"Total Images              : {len(data['results'])}\n")
+    log.write(f"Total Images              : {total_images}\n")
     log.write(f"Images Kept               : {len(keep_images)}\n")
     log.write(f"Images Marked for Cleanup : {len(delete_images)}\n\n")
 
-    log.write("KEEP\n")
+    log.write("Images Kept\n")
     for image in keep_images:
-        log.write(f"{image}\n")
+        log.write(f"- {image}\n")
 
-    log.write("\nDELETE\n")
+    log.write("\nImages Marked for Cleanup\n")
     for image in delete_images:
-        log.write(f"{image}\n")
+        log.write(f"- {image}\n")
 
 # ==========================================
-# Verification before deletion
+# Dry Run Completed
 # ==========================================
 
-choice = input("\nDo you want to delete these tags from Docker Hub? (yes/no): ").strip().lower()
+print("\n" + "=" * 55)
+print("DRY RUN COMPLETED SUCCESSFULLY")
+print("=" * 55)
+print("Cleanup analysis completed.")
+print("Cleanup report saved as 'cleanup.log'.")
+print("No Docker images were deleted.")
+print("This project only identifies images that match the cleanup policy.")
 
-if choice == "yes":
-    confirm_repo = input(f"Type the repository name ({REPOSITORY}) to confirm deletion: ").strip()
-    if confirm_repo == REPOSITORY:
-        for tag in delete_images:
-            delete_url = f"{BASE_URL}{tag}/"
-            del_response = requests.delete(delete_url, headers=headers)
-            if del_response.status_code == 204:
-                print(f"[INFO] Deleted tag: {tag}")
-            else:
-                print(f"[ERROR] Failed to delete {tag}: {del_response.status_code} {del_response.text}")
-        print("\nDeletion completed.")
-    else:
-        print("\nRepository name did not match. No tags were deleted.")
-else:
-    print("\nNo tags were deleted. Dry run only.")
+# ==========================================
+# Exit
+# ==========================================
 
+exit(0)
