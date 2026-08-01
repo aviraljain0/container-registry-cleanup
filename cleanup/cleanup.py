@@ -1,155 +1,156 @@
+import os
 import requests
 from datetime import datetime
-import os
 
 # ==========================================
-# Docker Hub Configuration
+# Configuration
 # ==========================================
 
 USERNAME = os.getenv("DOCKER_USERNAME")
 PASSWORD = os.getenv("DOCKER_PASSWORD")
 REPOSITORY = "container-registry-cleanup"
 
+KEEP_LAST = 3
+
+LOGIN_URL = "https://hub.docker.com/v2/users/login/"
 BASE_URL = f"https://hub.docker.com/v2/repositories/{USERNAME}/{REPOSITORY}/tags/"
 
-# Tags that should be marked for cleanup
-DELETE_TAGS = {"old", "backup", "test", "debug"}
-
 # ==========================================
-# Authenticate with Docker Hub
+# Login
 # ==========================================
 
-print("Authenticating with Docker Hub...")
+print("Authenticating...")
 
-auth_url = "https://hub.docker.com/v2/users/login/"
-auth_data = {
-    "username": USERNAME,
-    "password": PASSWORD
-}
+login = requests.post(
+    LOGIN_URL,
+    json={
+        "username": USERNAME,
+        "password": PASSWORD
+    },
+    timeout=20
+)
 
-auth_response = requests.post(auth_url, json=auth_data)
+if login.status_code != 200:
+    print("Authentication Failed")
+    print(login.text)
+    exit(1)
 
-if auth_response.status_code != 200:
-    print("Authentication Failed!")
-    print(auth_response.text)
-    exit()
+token = login.json()["token"]
 
-token = auth_response.json()["token"]
 headers = {
     "Authorization": f"JWT {token}"
 }
 
-print("Authentication successful!\n")
+print("Authentication Successful\n")
 
 # ==========================================
-# Fetch Repository Tags
+# Fetch ALL Tags
 # ==========================================
 
-print("Fetching tags from repository...\n")
+tags = []
+url = BASE_URL + "?page_size=100"
 
-response = requests.get(BASE_URL, headers=headers, timeout=10)
+while url:
 
-if response.status_code != 200:
-    print("Failed to fetch repository tags.")
-    print(response.text)
-    exit()
+    response = requests.get(url, headers=headers, timeout=20)
 
-data = response.json()
+    if response.status_code != 200:
+        print("Unable to fetch tags")
+        print(response.text)
+        exit(1)
 
-keep_images = []
-delete_images = []
+    data = response.json()
+
+    tags.extend(data["results"])
+
+    url = data["next"]
+
+if len(tags) == 0:
+    print("Repository has no tags.")
+    exit(0)
 
 # ==========================================
-# Create Cleanup Log
+# Sort Latest First
 # ==========================================
 
-with open("cleanup.log", "w", encoding="utf-8") as log:
+tags.sort(
+    key=lambda x: datetime.fromisoformat(
+        x["last_updated"].replace("Z", "+00:00")
+    ),
+    reverse=True
+)
+
+keep_tags = tags[:KEEP_LAST]
+delete_tags = tags[KEEP_LAST:]
+
+# ==========================================
+# Logging
+# ==========================================
+
+with open("cleanup.log", "w") as log:
 
     log.write("DOCKER HUB CLEANUP REPORT\n")
-    log.write("=" * 60 + "\n")
+    log.write("=" * 60 + "\n\n")
+
     log.write(f"Repository : {REPOSITORY}\n")
     log.write(f"Generated  : {datetime.now()}\n\n")
 
+    log.write(f"Keeping latest {KEEP_LAST} tags\n\n")
+
+    for tag in keep_tags:
+        log.write(f"KEEP : {tag['name']}\n")
+
+    log.write("\n")
+
     # ==========================================
-    # Process Each Image
+    # Delete Older Tags
     # ==========================================
 
-    for image in data["results"]:
+    deleted = 0
 
-        tag = image["name"]
-        updated = image["last_updated"]
+    for tag in delete_tags:
 
-        print(f"[INFO] Processing tag : {tag}")
-        print(f"[INFO] Last Updated   : {updated}")
+        tag_name = tag["name"]
 
-        if tag.lower() in DELETE_TAGS:
-            status = "MARKED FOR CLEANUP"
-            reason = "Cleanup policy matched"
-            delete_images.append(tag)
+        delete_url = BASE_URL + tag_name + "/"
+
+        print(f"Deleting {tag_name}...")
+
+        r = requests.delete(delete_url, headers=headers, timeout=20)
+
+        if r.status_code in (202, 204):
+
+            print(f"Deleted {tag_name}")
+
+            log.write(f"DELETED : {tag_name}\n")
+
+            deleted += 1
+
         else:
-            status = "KEEP"
-            reason = "Active image"
-            keep_images.append(tag)
 
-        print(f"[INFO] Status         : {status}")
-        print(f"[INFO] Reason         : {reason}\n")
+            print(f"Failed : {tag_name}")
 
-        log.write(f"Tag          : {tag}\n")
-        log.write(f"Last Updated : {updated}\n")
-        log.write(f"Status       : {status}\n")
-        log.write(f"Reason       : {reason}\n")
-        log.write("-" * 60 + "\n")
+            print(r.text)
 
-    # ==========================================
-    # Summary
-    # ==========================================
+            log.write(f"FAILED : {tag_name}\n")
 
-    total_images = len(data["results"])
-
-    print("=" * 55)
-    print("Cleanup Completed (Dry Run)")
-    print("=" * 55)
-
-    print(f"Total Images              : {total_images}")
-    print(f"Images Kept               : {len(keep_images)}")
-    print(f"Images Marked for Cleanup : {len(delete_images)}")
-
-    print("\nImages Kept:")
-    for image in keep_images:
-        print(f"  - {image}")
-
-    print("\nImages Marked for Cleanup:")
-    for image in delete_images:
-        print(f"  - {image}")
-
-    log.write("\nSUMMARY\n")
+    log.write("\n")
     log.write("=" * 60 + "\n")
-    log.write(f"Total Images              : {total_images}\n")
-    log.write(f"Images Kept               : {len(keep_images)}\n")
-    log.write(f"Images Marked for Cleanup : {len(delete_images)}\n\n")
+    log.write(f"Total Tags : {len(tags)}\n")
+    log.write(f"Kept       : {len(keep_tags)}\n")
+    log.write(f"Deleted    : {deleted}\n")
 
-    log.write("Images Kept\n")
-    for image in keep_images:
-        log.write(f"- {image}\n")
+print("\n======================================")
+print("Cleanup Completed")
+print("======================================")
 
-    log.write("\nImages Marked for Cleanup\n")
-    for image in delete_images:
-        log.write(f"- {image}\n")
+print(f"Total Tags : {len(tags)}")
+print(f"Kept       : {len(keep_tags)}")
+print(f"Deleted    : {len(delete_tags)}")
 
-# ==========================================
-# Dry Run Completed
-# ==========================================
+print("\nLatest Tags:")
 
-print("\n" + "=" * 55)
-print("DRY RUN COMPLETED SUCCESSFULLY")
-print("=" * 55)
-print("Cleanup analysis completed.")
-print("Cleanup report saved as 'cleanup.log'.")
-print("No Docker images were deleted.")
-print("This project only identifies images that match the cleanup policy.")
+for tag in keep_tags:
+    print(" -", tag["name"])
 
-# ==========================================
-# Exit
-# ==========================================
-
-exit(0)
+print("\ncleanup.log generated successfully.")
