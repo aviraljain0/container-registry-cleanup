@@ -28,7 +28,7 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        run: python cleanup.py
+        run: python cleanup/cleanup.py
 
       - name: Upload Log
         uses: actions/upload-artifact@v4
