@@ -5,6 +5,11 @@ on:
     branches:
       - main
 
+  workflow_dispatch:
+
+  schedule:
+    - cron: "0 0 * * *"
+
 jobs:
   cleanup-pipeline:
     name: Build Verification and Cleanup
@@ -38,12 +43,12 @@ jobs:
       - name: Verify Docker Installation
         run: docker --version
 
-      # Pull Docker Image
+      # Pull Latest Docker Image
       - name: Pull Docker Image
         run: |
           docker pull ibm1container1cleanup1team/container-registry-cleanup:latest
 
-      # List Docker Images
+      # Show Docker Images
       - name: List Docker Images
         run: docker images
 
@@ -55,7 +60,7 @@ jobs:
             -p 5000:5000 \
             ibm1container1cleanup1team/container-registry-cleanup:latest
 
-      # Verify Running Container
+      # Verify Container
       - name: Verify Running Container
         run: docker ps
 
