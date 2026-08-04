@@ -417,5 +417,3 @@ GitHub Repository:
 https://github.com/aviraljain0/container-registry-cleanup
 
 ---
-
-## ⭐ If you found this project helpful, consider giving it a star!
