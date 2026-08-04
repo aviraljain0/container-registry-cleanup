@@ -145,15 +145,15 @@ The following operations were performed:
 
 The following commands were used to create new image versions.
 
-![Docker Tagging](screenshots/dockerhub-tags.jpeg)
+![Docker Push](screenshots/docker-push-command.jpeg)
 
 ---
 
 ## Docker Image Push
 
 Tagged Docker images were pushed to Docker Hub.
+![Docker Tagging](screenshots/dockerhub-tags.jpeg)
 
-![Docker Push](screenshots/docker-push-command.jpeg)
 
 ---
 
