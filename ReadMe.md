@@ -145,7 +145,7 @@ The following operations were performed:
 
 The following commands were used to create new image versions.
 
-![Docker Tagging](screenshots/docker-tag-command.png)
+![Docker Tagging](screenshots/dockerhub-tags.jpeg)
 
 ---
 
@@ -153,7 +153,7 @@ The following commands were used to create new image versions.
 
 Tagged Docker images were pushed to Docker Hub.
 
-![Docker Push](screenshots/docker-push-command.png)
+![Docker Push](screenshots/docker-push-command.jpeg)
 
 ---
 
@@ -161,7 +161,7 @@ Tagged Docker images were pushed to Docker Hub.
 
 Multiple image versions available locally.
 
-![Docker Images](screenshots/local-docker-images.png)
+![Docker Images](screenshots/local-docker-images.jpeg)
 
 ---
 
@@ -169,7 +169,7 @@ Multiple image versions available locally.
 
 Published Docker image versions on Docker Hub.
 
-![Updated Tags](screenshots/dockerhub-updated-tags.png)
+![Updated Tags](screenshots/dockerhub-updated-tags.jpeg)
 
 ---
 
@@ -234,13 +234,13 @@ No credentials are stored inside the source code.
 
 ## 6. Docker Hub Repository
 
-![Docker Repository](screenshots/dockerhub-repository.png)
+![Docker Repository](screenshots/dockerhub-repository.jpeg)
 
 ---
 
 ## 7. Docker Hub Tags
 
-![Docker Tags](screenshots/dockerhub-tags.png)
+![Docker Tags](screenshots/dockerhub-tags.jpeg)
 
 ---
 
@@ -256,13 +256,7 @@ No credentials are stored inside the source code.
 
 ---
 
-## 10. GitHub Actions Artifact
-
-![Artifact](screenshots/artifact.png)
-
----
-
-## 11. Workflow Logs
+## 10. Workflow Logs
 
 ![Workflow Logs](screenshots/workflow-logs.png)
 
