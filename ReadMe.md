@@ -1,4 +1,4 @@
-# 🚀 Docker Hub Container Registry Cleanup Automation
+#  Docker Hub Container Registry Cleanup Automation
 
 ![Python](https://img.shields.io/badge/Python-3.12-blue?style=for-the-badge&logo=python)
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-CI/CD-2088FF?style=for-the-badge&logo=githubactions)
@@ -7,7 +7,7 @@
 
 ---
 
-# 📖 Project Overview
+#  Project Overview
 
 Docker Hub Container Registry Cleanup Automation is a DevOps automation project developed to simplify Docker Hub repository management.
 
@@ -17,7 +17,7 @@ The solution eliminates manual registry monitoring and demonstrates the use of C
 
 ---
 
-# 🎯 Objectives
+#  Objectives
 
 - Automate Docker Hub image analysis.
 - Identify outdated Docker image tags.
@@ -28,7 +28,7 @@ The solution eliminates manual registry monitoring and demonstrates the use of C
 
 ---
 
-# ❗ Problem Statement
+#  Problem Statement
 
 As Docker repositories grow, they accumulate numerous outdated image versions.
 
@@ -44,7 +44,7 @@ This project automates repository analysis and cleanup reporting.
 
 ---
 
-# ✨ Key Features
+#  Key Features
 
 - Docker Hub Authentication
 - Automatic Repository Scan
@@ -58,7 +58,7 @@ This project automates repository analysis and cleanup reporting.
 
 ---
 
-# 🛠 Technology Stack
+#  Technology Stack
 
 | Technology | Purpose |
 |------------|----------|
@@ -71,7 +71,7 @@ This project automates repository analysis and cleanup reporting.
 
 ---
 
-# 📂 Project Structure
+#  Project Structure
 
 ```
 container-registry-cleanup/
@@ -93,7 +93,7 @@ container-registry-cleanup/
 
 ---
 
-# ⚙ System Workflow
+#  System Workflow
 
 ```
 GitHub Push / Manual Trigger / Scheduled Run
@@ -128,7 +128,7 @@ Upload Cleanup Report Artifact
 
 ---
 
-# 🐳 Docker Image Versioning and Tag Management
+#  Docker Image Versioning and Tag Management
 
 Multiple Docker image versions were created to simulate a real-world container registry.
 
@@ -173,7 +173,7 @@ Published Docker image versions on Docker Hub.
 
 ---
 
-# 🔄 Cleanup Process
+#  Cleanup Process
 
 The cleanup script performs the following steps:
 
@@ -187,7 +187,7 @@ The cleanup script performs the following steps:
 
 ---
 
-# 🔐 Security
+#  Security
 
 Sensitive credentials are securely stored using GitHub Secrets.
 
@@ -200,7 +200,7 @@ No credentials are stored inside the source code.
 
 ---
 
-# 📸 Project Screenshots
+#  Project Screenshots
 
 ## 1. Project Structure
 
@@ -262,7 +262,7 @@ No credentials are stored inside the source code.
 
 ---
 
-# ▶ Running the Project
+#  Running the Project
 
 ## Clone Repository
 
@@ -306,7 +306,7 @@ python cleanup/cleanup.py
 
 ---
 
-# 🚀 GitHub Actions
+#  GitHub Actions
 
 The workflow can be triggered using:
 
@@ -316,7 +316,7 @@ The workflow can be triggered using:
 
 ---
 
-# 📄 Cleanup Report
+#  Cleanup Report
 
 After execution, the project generates:
 
@@ -336,7 +336,7 @@ The report is automatically uploaded as a GitHub Actions Artifact.
 
 ---
 
-# 📊 Expected Output
+#  Expected Output
 
 The cleanup script provides:
 
@@ -345,23 +345,9 @@ The cleanup script provides:
 - Retrieved Tags
 - Cleanup Summary
 - Generated Report
-
 ---
 
-# 👥 Team Members
-
-| Team Member | Responsibility |
-|-------------|----------------|
-| Member 1 | Project Planning & Requirement Analysis |
-| Member 2 | Docker Hub Integration |
-| Member 3 | Python Cleanup Script Development |
-| Member 4 | GitHub Actions CI/CD Pipeline & Testing |
-
-> Replace the member names with the actual names from your project report.
-
----
-
-# 📈 Future Enhancements
+#  Future Enhancements
 
 - Automatic Email Notifications
 - Slack Integration
@@ -373,7 +359,7 @@ The cleanup script provides:
 
 ---
 
-# 🏆 Project Outcome
+#  Project Outcome
 
 The project successfully demonstrates:
 
@@ -386,7 +372,7 @@ The project successfully demonstrates:
 
 ---
 
-# 📚 Learning Outcomes
+#  Learning Outcomes
 
 Through this project, the team gained experience in:
 
@@ -400,7 +386,7 @@ Through this project, the team gained experience in:
 
 ---
 
-# 🙏 Acknowledgements
+#  Acknowledgements
 
 - IBM SkillsBuild
 - GitHub
@@ -410,7 +396,7 @@ Through this project, the team gained experience in:
 
 ---
 
-# 📧 Repository
+#  Repository
 
 GitHub Repository:
 
